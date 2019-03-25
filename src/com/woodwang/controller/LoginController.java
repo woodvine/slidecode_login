@@ -47,11 +47,6 @@ public class LoginController {
     private int maxErrorCount = 20;
 
     /**
-     * 同一个IP一段时间限制为10分钟
-     */
-    private long maxErrorTimespan = 10*60*1000;
-
-    /**
      * 验证码校验成功后返回前端一个随机数据，并存在在会话中，作为验证操作成对出现的依据
      */
     private String CHECK_OK = "slideCheckResult";
