@@ -1,0 +1,87 @@
+@charset "UTF-8";
+body,html{
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+.login_content{
+	background-color:#1abc9c;
+    width: 100%;
+    height: 100%;
+    background-size: 80%;
+    float: left;
+}
+.login_cont_sys{
+    width: 800px;
+    position: absolute;
+    left:50%;
+    margin-left: -400px;
+    height: 800px;
+    top:50%;
+    margin-top: -400px;
+
+}
+.login_sys_title{
+    width: 600px;
+    height: 80px;
+    position: absolute;
+    left: 50%;
+    top:12%;
+    margin-left: -300px;
+
+}
+.login_sys_title h1{
+    color: #fff;
+    display: block;
+    text-align: center;
+}
+.login_case{
+    width: 360px;
+    background-color:#edeff1;
+    position: absolute;
+    left: 50%;
+    top:50%;
+    margin-left: -180px;
+    margin-top: -240px;
+    padding: 20px;
+    height: 420px;
+    box-shadow: 2px 5px 5px 0px rgba(0,0,0,0.3);
+}
+.login_case input{
+    border-radius: 6px;
+    height: 40px;
+    width: 320px;
+    box-shadow: #fff;
+    padding-left: 35px;
+    line-height: 45px;
+    margin-bottom: 20px;
+}
+.input-account {
+    background:#e0e1e3 url(./login_user_24.png) no-repeat 5px center;
+    border: 1px solid #333;
+}
+
+.input-password {
+    background:#e0e1e3 url(./login_passwd_24.png) no-repeat 5px center;
+    border: 1px solid #333;
+}
+
+.input-code {
+    width: 349px!important;
+    margin-right: 10px;
+}
+
+.login-btn {
+    width: 100%;
+    height: 40px;
+    border: none;
+    border-radius: 5px;
+    background: #1abc9c;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 40px;
+    color: #fff;
+    cursor:pointer;
+    font-family: "Helvetica Neue", Helvetica, Arial, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", STHeiti, "宋体", sans-serif;
+}

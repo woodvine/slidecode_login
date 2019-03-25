@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+	version="2.4">
+	
+	<display-name>slidecode_login</display-name>
+
+	<!-- log4j路径配置 -->
+	<context-param>
+		<param-name>log4jConfigLocation</param-name>
+		<param-value>classpath:config/log4j.properties</param-value>
+	</context-param>
+
+	<!-- Spring刷新Log4j配置文件变动的间隔,单位为毫秒 -->
+	<context-param>
+		<param-name>log4jRefreshInterval</param-name>
+		<param-value>100000</param-value>
+	</context-param>
+
+	<!-- log4j日志监听器：本质在Servlet 容器启动时初始化log4j组件-->
+	<listener>
+		<listener-class>org.springframework.web.util.Log4jConfigListener
+		</listener-class>
+	</listener>
+
+	<!-- 初始化spring配置文件 -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			classpath:config/spring.xml
+		</param-value>
+	</context-param>
+
+	<!-- spring MVC Servlet -->
+	<servlet>
+		<servlet-name>dispatcherServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet
+		</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath:config/spring-mvc.xml
+			</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<!-- SpringMVC拦截路径：所有的Controller类中的方法的请求前缀都是controller/* -->
+	<!-- 控制层请求统一前缀的好处：所有的静态资源文件不受该Servlet处理-->
+	<servlet-mapping>
+		<servlet-name>dispatcherServlet</servlet-name>
+		<url-pattern>/controller/*</url-pattern>
+	</servlet-mapping>
+
+	<!--应用的主页面-->
+	<welcome-file-list>
+		<welcome-file>login.jsp</welcome-file>
+	</welcome-file-list>
+
+	<!-- 配置系统错误显示的页面:隐藏Tomcat服务器的信息 -->
+	<error-page>
+		<error-code>500</error-code>
+		<location>/error/500.html</location>
+	</error-page>
+	<error-page>
+		<error-code>404</error-code>
+		<location>/error/404.html</location>
+	</error-page>
+</web-app>
