@@ -162,7 +162,7 @@ public class SlideVerifyToolkit {
             for (int j = 0; j < templateImageData[0].length - 5; j++) {
                 int rgb = templateImage.getRGB(i, j);
                 //对源文件备份图像(x+i,y+j)坐标点进行透明处理
-                if (rgb != 16777215 && rgb <= 0 && i<origWidth && j<origHeight) {
+                if (rgb != 16777215 && rgb <= 0 && x + i<origWidth && y + j<origHeight) {
                     int rgb_ori = ori_copy_image.getRGB(x + i, y + j);
                     int r = (0xff & rgb_ori);
                     int g = (0xff & (rgb_ori >> 8));

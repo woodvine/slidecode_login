@@ -37,19 +37,43 @@ public class LoginController {
     private Map<String,JSONObject> codeErrorInfoMap = new HashMap<String,JSONObject>();
     
     /**
-     * 验证码允许误差
+     * 默认的用户认证信息
      */
-    private double errLimit = 5;
+    private Map<String,String> userAuthInfo = new HashMap<String,String>();
+    
+    {
+    	userAuthInfo.put("test", "321!123");
+    	userAuthInfo.put("admin", "321!123");
+    	userAuthInfo.put("zhangsan", "321!123");
+    	userAuthInfo.put("lisi", "321!123");
+    	userAuthInfo.put("wangwu", "321!123");
+    	userAuthInfo.put("woodwang", "321!123");
+    }
+    
+    /**
+     * 验证码允许的误差正负2
+     */
+    private double errLimit = 2;
 
     /**
      * 同一个IP一段时间内请求失败的最大次数
      */
     private int maxErrorCount = 20;
+    
+    /**
+     * 同一个IP限制的时间范围：5分钟内最大允许失败次数20次
+     */
+    private long maxErrorTime = 5*60*1000;
 
     /**
      * 验证码校验成功后返回前端一个随机数据，并存在在会话中，作为验证操作成对出现的依据
      */
     private String CHECK_OK = "slideCheckResult";
+    
+    /**
+     * 登录成功后设置的存储用户信息的Key
+     */
+    private String LOGIN_OK = "sessionUser";
     
     /**
      * 登出系统
@@ -203,19 +227,26 @@ public class LoginController {
         	return true;
         }
         
-        //非首次：判断失败次数
+        //判断时间：距离上次校验失败超过限制时间，则解除限制重置失败次数
+        long lastFailTime = info.getLong("lastFailTime");
+        long now = System.currentTimeMillis();
+        if(now-lastFailTime>maxErrorTime) {
+        	info.put("failTimes", 0);
+        	return true;
+        }
+        
+        //间隔仍在限制时间区域：判断失败次数
         Integer failTimes = info.getInteger("failTimes");
         if(failTimes==null || failTimes<maxErrorCount) {
         	return true;
         }
         
-        //判断时间
-        
+        //间隔仍在限制时间区域，且超过最大重试次数，则返回false
         return false;
     }
     
     /**
-     * 记录操作失败配置
+     * 记录验证码验证失败的IP信息
      * @param ip
      */
     private synchronized void  putCheckErrorLog(String ip){
@@ -242,22 +273,51 @@ public class LoginController {
 	@ResponseBody
 	public ResultData login(HttpServletRequest request) {
 		ResultData result = new ResultData();
-		String userId = request.getParameter("userId");
+
+		//先校验验证码
+		String pageCode = request.getParameter("pageCode");
+		String storedCode = (String)request.getSession().getAttribute(CHECK_OK);
+		if(pageCode == null || storedCode == null || !pageCode.equals(storedCode)) {
+			result.setNotice("验证码错误!");
+			return result;
+		}
 		
+		//再校验用户名
+		String userId = request.getParameter("userId");
+		if(userId == null || "".equals(userId)) {
+			result.setNotice("用户名不能为空!");
+			return result;
+		}
+		
+		//最后校验密码
+		String passwod = request.getParameter("password");
+		String storedAuth = userAuthInfo.get(userId);
+		if(storedAuth == null || !storedAuth.equals(passwod)) {
+			result.setNotice("用户名和密码不匹配!");
+			return result;
+		}
+		
+		//清空验证码：验证码只有一次有效
+		request.getSession().setAttribute(CHECK_OK,"");
+		
+		//存储会话信息
+		request.getSession().setAttribute(LOGIN_OK,userId);
+		
+		//设置登录成功标识
+		result.setSuccess(true);
 		return result;
 	}
 	
 	/**
-	 * check if the target is exists
-	 * @param user
+	 * 退出操作：清理会话
 	 * @return
 	 */
 	@RequestMapping("/logout")
 	@ResponseBody
 	public ResultData logout(HttpServletRequest request) {
 		ResultData result = new ResultData();
-		String userId = request.getParameter("userId");
-		
+		request.getSession().removeAttribute(LOGIN_OK);
+		request.getSession().invalidate();
 		return result;
 	}
 	

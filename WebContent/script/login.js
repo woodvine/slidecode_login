@@ -90,7 +90,14 @@ $(document).ready(function () {
 
         // 构建请求数据
         var url = CPATH + '/index/login';
+        var data = {
+        		"userId":username,
+        		"password":password,
+        		"pageCode":pageCode
+        }
         
+        //提交请求
+        ajaxFun(url,data,afterSubmit)
     });
 
 });
@@ -185,5 +192,4 @@ function afterSubmit(data) {
         $("#errorMsg").text(errorMsg);
         $("#errorMsg").show();
     }
-    
 }
