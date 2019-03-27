@@ -160,7 +160,7 @@ public class LoginController {
                 result.setResult(checkOk);
                 
                 //清理受限IP
-                codeErrorInfoMap.containsKey(ip);
+                codeErrorInfoMap.remove(ip);
             }else {
                 // 设置结果
                 result.setNotice("验证码错误！");

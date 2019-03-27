@@ -28,7 +28,7 @@ import javax.imageio.stream.ImageInputStream;
 * @Description:滑动验证工具包
 * @Comment :pictureTemplatesCut方法是提供给外界的方法。
 *           1、newImage  滑块图片
-*           2、oriCopyImage 验证图片，包含一块空白区域
+*           2、oriCopyImage 验证图片，包含一块抠图模板大小的透明遮罩区域
 *           3、X,Y坐标  用户滑动的坐标
 * @author:woodwang
 * @date :2019年3月12日
@@ -78,49 +78,51 @@ public class SlideVerifyToolkit {
         if (isEmpty(templateFiletype) || isEmpty(oriFiletype)) {
             throw new RuntimeException("file type is empty");
         }
-        // 源文件流
+        // 源背景图文件流
         File Orifile = targetFile;
         InputStream oriis = new FileInputStream(Orifile);
 
-        // 模板图
+        //获取抠图模板图的宽和高信息
         BufferedImage imageTemplate = ImageIO.read(templateFile);
         WIDTH = imageTemplate.getWidth();
         HEIGHT = imageTemplate.getHeight();
+        
+        //随机生成源背景图中抠缺口图坐标x,y
         generateCutoutCoordinates();
-        // 最终图像
+        
+        //抠图模板
         BufferedImage newImage = new BufferedImage(WIDTH, HEIGHT, imageTemplate.getType());
         Graphics2D graphics = newImage.createGraphics();
         graphics.setBackground(Color.white);
-
-        int bold = 5;
         
-        // 获取感兴趣的目标区域
+        //从源背景图片中在随机位置x,y处获取与抠图模板大小一致的区域图
         BufferedImage targetImageNoDeal = getTargetArea(X, Y, WIDTH, HEIGHT, oriis, oriFiletype);
 
-        // 根据模板图片抠图
+        //用源背景图片中对应区域的像素信息渲染抠图模板，形成可拖动的小拼块
         newImage = DealCutPictureByTemplate(targetImageNoDeal, imageTemplate, newImage);
 
-        // 设置“抗锯齿”的属性
+        //设置拼块的“抗锯齿”的属性
+        int bold = 5;
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics.setStroke(new BasicStroke(bold, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
         graphics.drawImage(newImage, 0, 0, null);
         graphics.dispose();
 
+        //利用ImageIO类提供的write方法，将bi以png图片的数据模式写入流。
         ByteArrayOutputStream os = new ByteArrayOutputStream();//新建流。
-        ImageIO.write(newImage, "png", os);//利用ImageIO类提供的write方法，将bi以png图片的数据模式写入流。
+        ImageIO.write(newImage, "png", os);
         byte[] newImages = os.toByteArray();
 
-        // 源图生成遮罩
+        //对源背景图中被扣去的部分生成透明遮罩
         BufferedImage oriImage = ImageIO.read(Orifile);
         byte[] oriCopyImages = DealOriPictureByTemplate(oriImage, imageTemplate, X, Y);
 
+        //存储最终滑块验证码的数据信息：小拼块、带有拼图缺口的背景图、缺口的坐标
         Base64 base64Object = new Base64();
-        pictureMap.put("newImage", base64Object.encodeToString(newImages));
-        pictureMap.put("oriCopyImage", base64Object.encodeToString(oriCopyImages));
+        pictureMap.put("newImage", base64Object.encodeToString(newImages));//滑块
+        pictureMap.put("oriCopyImage", base64Object.encodeToString(oriCopyImages));//带有缺口的背景图
         pictureMap.put("pointX",String.valueOf(X));
         pictureMap.put("pointY",String.valueOf(Y));
-        pictureMap.put("xPercent",String.valueOf(xPercent));
-        pictureMap.put("yPercent",String.valueOf(yPercent));
         return pictureMap;
     }
 
